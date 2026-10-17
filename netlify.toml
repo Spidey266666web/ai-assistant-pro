@@ -1,0 +1,23 @@
+# Netlify configuration for Brahma Echo
+#
+# Brahma Echo itself is a Python/PyQt Windows desktop app, which Netlify
+# cannot run. This config deploys the self-contained WebGL experience in
+# assets/web_background/ as a static showcase site.
+#
+# No build step is required: the published folder is plain static HTML/JS.
+
+[build]
+  # Folder served by Netlify (contains index.html and its local JS assets).
+  # No build command is defined, so Netlify simply publishes this folder as-is.
+  publish = "assets/web_background"
+
+# Long-lived caching for the vendored Three.js libraries
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
