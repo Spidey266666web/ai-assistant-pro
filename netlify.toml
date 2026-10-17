@@ -1,15 +1,33 @@
 # Netlify configuration for Brahma Echo
-#
+# ---------------------------------------------------------------
 # Brahma Echo itself is a Python/PyQt Windows desktop app, which Netlify
-# cannot run. This config deploys the self-contained WebGL experience in
-# assets/web_background/ as a static showcase site.
+# cannot run. This config publishes the self-contained WebGL showcase in
+# assets/web_background/ as a static site.
 #
-# No build step is required: the published folder is plain static HTML/JS.
+# WHY `base` IS SET (important):
+# Netlify only looks for dependency-management files (requirements.txt,
+# Pipfile, setup.py, runtime.txt, package.json, ...) inside the BASE
+# directory, and it installs them before building.
+#
+# Brahma Echo's requirements.txt and setup.py live at the repository root and
+# describe a Windows-only Python app (win10toast, pycaw, pywinauto, comtypes,
+# pyaudio, ...). Those packages cannot be built on Netlify's Linux build image,
+# which is what made the build fail.
+#
+# Netlify has no supported way to "ignore" a requirements.txt that it can see.
+# The official mechanism is the base directory, so we point it at the `assets`
+# folder. `assets/` contains no dependency files, so Netlify installs nothing
+# and simply publishes the static folder. Brahma Echo's own requirements.txt
+# is left untouched for the desktop app.
+#
+# Note: every path in this file is resolved relative to `base`.
 
 [build]
-  # Folder served by Netlify (contains index.html and its local JS assets).
-  # No build command is defined, so Netlify simply publishes this folder as-is.
-  publish = "assets/web_background"
+  # Dependency scanning + build happen here (contains no dependency files)
+  base = "assets"
+  # Relative to `base`, so this resolves to assets/web_background
+  publish = "web_background"
+  # Deliberately no build command: the folder is pre-built static HTML/JS.
 
 # Long-lived caching for the vendored Three.js libraries
 [[headers]]
